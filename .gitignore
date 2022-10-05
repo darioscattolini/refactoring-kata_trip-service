@@ -68,3 +68,5 @@ xcuserdata
 *.xccheckout
 *.moved-aside
 *.xcuserstate
+
+.gradle
