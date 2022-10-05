@@ -30,4 +30,14 @@ class TripServiceTest {
 
         assertThat(thrown).isInstanceOf(UserNotLoggedInException::class.java)
     }
+
+    @Test
+    fun `getTripsByUser returns empty list if user is not friend of logged user`() {
+        every { UserSession.loggedUser } returns User()
+
+        val service = TripService()
+
+        assertThat(UserSession.loggedUser!!.friends).doesNotContain(user)
+        assertThat(service.getTripsByUser(user)).isEmpty()
+    }
 }
