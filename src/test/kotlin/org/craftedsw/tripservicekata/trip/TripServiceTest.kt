@@ -11,12 +11,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class TripServiceTest {
-    lateinit var user: User
-    lateinit var userSession: UserSession
+    private lateinit var user: User
+    private lateinit var loggedUser: User
 
     @BeforeEach
     fun setUp() {
-        user = User()
+        user = spyk()
+        loggedUser = User()
         mockkObject(UserSession)
     }
 
@@ -33,11 +34,25 @@ class TripServiceTest {
 
     @Test
     fun `getTripsByUser returns empty list if user is not friend of logged user`() {
-        every { UserSession.loggedUser } returns User()
+        every { UserSession.loggedUser } returns loggedUser
 
         val service = TripService()
 
         assertThat(UserSession.loggedUser!!.friends).doesNotContain(user)
         assertThat(service.getTripsByUser(user)).isEmpty()
+    }
+
+    @Test
+    fun `getTripsByUser returns list of user's trip if user is friend of logged user`() {
+        val tripsList = listOf(Trip(), Trip())
+        every { UserSession.loggedUser } returns loggedUser
+        every { user.friends } returns listOf(User(), loggedUser)
+        mockkObject(TripDAO)
+        every { TripDAO.findTripsByUser(user) } returns tripsList
+
+        val service = TripService()
+
+        assertThat(user.friends).contains(UserSession.loggedUser)
+        assertThat(service.getTripsByUser(user)).containsExactlyInAnyOrderElementsOf(tripsList)
     }
 }
