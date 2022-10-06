@@ -12,13 +12,8 @@ class TripService {
 
         val loggedUser = UserSession.loggedUser ?: throw UserNotLoggedInException()
 
-        var isFriend: Boolean = false
-        for (friend in user.friends) {
-            if (friend == loggedUser) {
-                isFriend = true
-                break
-            }
-        }
+        val isFriend = user.friends.contains(loggedUser)
+
         if (isFriend) {
             tripList = TripDAO.findTripsByUser(user)
         }
